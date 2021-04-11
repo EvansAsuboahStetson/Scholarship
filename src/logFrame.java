@@ -1,3 +1,6 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 
 
 import javatutorials.javamail.JavaMailUtil;
@@ -6,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.regex.Pattern;
 
 public class logFrame extends JFrame implements ActionListener  {
@@ -13,18 +18,18 @@ public class logFrame extends JFrame implements ActionListener  {
     private Container form;
     private JLabel title;
     private JLabel fName;
-    private  JTextField fName_Field;
+    public   JTextField fName_Field;
     private JLabel sName;
-    private JTextField sName_Field;
+    public JTextField sName_Field;
     private JLabel dob;
-    private JComboBox day;
-    private JComboBox month;
-    private JComboBox year;
+    public JComboBox day;
+    public JComboBox month;
+    public JComboBox year;
     private JLabel email;
-    private JTextField email_Field;
+    public JTextField email_Field;
     private JLabel password;
-    private  JPasswordField password_Field;
-    private JPasswordField repeat_Field;
+    public   JPasswordField password_Field;
+    public JPasswordField repeat_Field;
     private JButton submit_button;
     private JButton Login;
 
@@ -240,7 +245,12 @@ public class logFrame extends JFrame implements ActionListener  {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
+
+            connec();
+
         }
+
+
 
 
     }
@@ -252,4 +262,31 @@ public class logFrame extends JFrame implements ActionListener  {
 
 
     }
-}
+    public  void connec(){
+        try
+        {
+            String date_of_birth =   String.valueOf(year.getSelectedItem() + "-"+ String.valueOf(month.getSelectedIndex()+1) + "-"  + String.valueOf(day.getSelectedItem()) );
+
+            java.sql.Connection con= DriverManager.getConnection("jdbc:mysql://localhost:3306/scholar","root","SarahDufie1999$");
+            String query = "INSERT INTO user_details values('" + fName_Field.getText() + "','" + sName_Field.getText() + "','" + email_Field.getText() + "','" +
+                    password_Field.getText() + "','" + date_of_birth + "')";
+            Statement sta = con.createStatement();
+            int x = sta.executeUpdate(query);
+            if (x == 0) {
+                JOptionPane.showMessageDialog(null, "This is alredy exist");
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "Welcome, " +  "Your account is sucessfully created");
+            }
+            con.close();
+
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    }
+
+
