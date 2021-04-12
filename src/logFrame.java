@@ -1,6 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
+import java.sql.*;
 
 
 import javatutorials.javamail.JavaMailUtil;
@@ -15,6 +13,7 @@ import java.util.regex.Pattern;
 
 public class logFrame extends JFrame implements ActionListener  {
     //Fields of the form
+    private Connection connection;
     private Container form;
     private JLabel title;
     private JLabel fName;
@@ -226,27 +225,22 @@ public class logFrame extends JFrame implements ActionListener  {
 
     }
 
-
-
-
-
-
-
-
-
-
     @Override
     public void actionPerformed(ActionEvent e) {
         Validate_Input();
         if (Validate_Input() == true)
         {
             try {
-                JavaMailUtil.sendMail(email_Field.getText());
+                openConnection();
+
+                isUsernameRegistered(email_Field.getText());
+
+
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
 
-            connec();
+
 
         }
 
@@ -262,31 +256,65 @@ public class logFrame extends JFrame implements ActionListener  {
 
 
     }
-    public  void connec(){
-        try
-        {
-            String date_of_birth =   String.valueOf(year.getSelectedItem() + "-"+ String.valueOf(month.getSelectedIndex()+1) + "-"  + String.valueOf(day.getSelectedItem()) );
-
-            java.sql.Connection con= DriverManager.getConnection("jdbc:mysql://localhost:3306/scholar","root","SarahDufie1999$");
-            String query = "INSERT INTO user_details values('" + fName_Field.getText() + "','" + sName_Field.getText() + "','" + email_Field.getText() + "','" +
-                    password_Field.getText() + "','" + date_of_birth + "')";
-            Statement sta = con.createStatement();
-            int x = sta.executeUpdate(query);
-            if (x == 0) {
-                JOptionPane.showMessageDialog(null, "This is alredy exist");
-            } else {
-                JOptionPane.showMessageDialog(null,
-                        "Welcome, " +  "Your account is sucessfully created");
-            }
-            con.close();
-
-
+    public Statement openConnection() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/scholar", "root", "SarahDufie1999$");
+            System.out.println("Connection established successfully with the database server.");
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        return null;
     }
+
+    public boolean isUsernameRegistered(String userName) {
+        String query = "SELECT email FROM user_details where email=?";
+        try {
+
+            PreparedStatement preparedStatement = this.connection.prepareStatement(query);
+            preparedStatement.setString(
+           1, userName);
+
+            ResultSet rs = preparedStatement.executeQuery() ;
+            if(rs.next()) {
+                JOptionPane.showMessageDialog(null,"User Already  exist");
+
+                return false ;
+            }else {
+                JOptionPane.showMessageDialog(null,"Registered Successfully");
+                Insert();
+                JavaMailUtil.sendMail(email_Field.getText());
+                return true ;
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return true ;
+        }
+
+
+    }
+    public boolean Insert() throws Exception {
+         try
+         {
+             String date_of_birth = String.valueOf(year.getSelectedItem() + "-" + String.valueOf(month.getSelectedIndex() + 1) + "-" + String.valueOf(day.getSelectedItem()));
+
+             String query= "INSERT INTO user_details  (first_name, last_name, email, psword, dob)"+
+                     "values('" + fName_Field.getText() + "','" + sName_Field.getText() + "','" + email_Field.getText() + "','" +
+                     password_Field.getText() + "','" + date_of_birth+ "')";
+
+             Statement statement = this.connection.createStatement();
+             statement.executeUpdate(query);
+             statement.close();
+             return true;
+         }
+         catch (Exception ex) {
+             return false;
+         }
+
+
+    }
+
     }
 
 
