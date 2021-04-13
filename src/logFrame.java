@@ -30,7 +30,7 @@ public class logFrame extends JFrame implements ActionListener  {
     public   JPasswordField password_Field;
     public JPasswordField repeat_Field;
     private JButton submit_button;
-    private JButton Login;
+   public JButton Login;
 
     //Initializing  dayCombo
 
@@ -149,6 +149,7 @@ public class logFrame extends JFrame implements ActionListener  {
          Login = new JButton("Log In");
          Login.setBounds(520,420,100,20);
          form.add(Login);
+         Login.addActionListener(this::Login_ActionPerformed);
 
 
 
@@ -248,11 +249,11 @@ public class logFrame extends JFrame implements ActionListener  {
 
 
     }
-    public void fNameKeyReleased(java.awt.event.KeyEvent evt)
+    public   void Login_ActionPerformed(java.awt.event.ActionEvent e)
     {
-
-    }
-    public void reg_button(ActionEvent e) throws Exception {
+        LogIn logins= new LogIn();
+        logins.show();
+        dispose();
 
 
     }
@@ -268,7 +269,7 @@ public class logFrame extends JFrame implements ActionListener  {
     }
 
     public boolean isUsernameRegistered(String userName) {
-        String query = "SELECT email FROM user_details where email=?";
+        String query = "SELECT * FROM user_details where email=?";
         try {
 
             PreparedStatement preparedStatement = this.connection.prepareStatement(query);
@@ -292,8 +293,8 @@ public class logFrame extends JFrame implements ActionListener  {
             return true ;
         }
 
-
     }
+
     public boolean Insert() throws Exception {
          try
          {
