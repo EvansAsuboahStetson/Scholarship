@@ -285,6 +285,8 @@ public class logFrame extends JFrame implements ActionListener  {
                 JOptionPane.showMessageDialog(null,"Registered Successfully");
                 Insert();
                 JavaMailUtil.sendMail(email_Field.getText());
+                LogIn log= new LogIn();
+                this.dispose();
                 return true ;
 
             }

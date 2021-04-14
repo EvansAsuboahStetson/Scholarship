@@ -66,21 +66,36 @@ public class LogIn extends JFrame implements ActionListener{
 
       }
 
+
+
       @Override
       public void actionPerformed(ActionEvent e) {
           try {
               if(e.getSource()==submit_button)
               {
+
+
                    if (((isLogIn(emai_Field.getText(), pass_Field.getText()))))
                   {
+                      dispose();
 
-                      Homepage myHomepage= new Homepage();
-                      myHomepage.show();
+
+                      String query = "Select * from user_details where email='" + emai_Field.getText() + "' and psword= '" + pass_Field.getText() + "'";
+                      Statement stm = MyConnection.getConnection().createStatement();
+                      ResultSet rs = stm.executeQuery(query);
+                      if(rs.next())
+                      {
+                          Homepage v1= new Homepage();
+                          v1.firstName.setText(rs.getString(2));
+                          v1.setVisible(true);
+
+
+                      }
 
                   }
                    else {
 
-
+                        JOptionPane.showMessageDialog(null, "Username not registered. Sign up");
 
               }
 
@@ -99,7 +114,8 @@ public class LogIn extends JFrame implements ActionListener{
       public void regButton(java.awt.event.ActionEvent e)
       {
           logFrame log = new logFrame();
-          dispose();
+          log.setVisible(true);
+         this.dispose();
       }
       public boolean isLogIn (String email, String p_word) throws Exception {
 
@@ -111,7 +127,12 @@ public class LogIn extends JFrame implements ActionListener{
           ResultSet rs = stm.executeQuery(query);
           if (rs.next()) {
               System.out.println("LogIn successful");
+
+
+
+
               return true;
+
 
 
 
