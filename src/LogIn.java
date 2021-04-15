@@ -87,7 +87,6 @@ public class LogIn extends JFrame implements ActionListener{
                       {
                           Homepage v1= new Homepage();
                           v1.firstName.setText(rs.getString(2));
-                          v1.setVisible(true);
 
 
                       }
