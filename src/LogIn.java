@@ -94,7 +94,7 @@ public class LogIn extends JFrame implements ActionListener{
                   }
                    else {
 
-                        JOptionPane.showMessageDialog(null, "Username not registered. Sign up");
+
 
               }
 
@@ -137,6 +137,8 @@ public class LogIn extends JFrame implements ActionListener{
 
 
           } else {
+              JOptionPane.showMessageDialog(null, "Username or Password not Incorrect.");
+
               return false;
           }
       }
