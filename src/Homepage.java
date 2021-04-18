@@ -1,18 +1,30 @@
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Enumeration;
 
 
-public class Homepage extends JFrame    {
+public class Homepage extends JFrame implements ActionListener {
 
-     JPanel jPanel= new JPanel();
+
+
 
     JLabel firstName=new JLabel();
-    private String Education[]={
-            "Undergraduate","PostGraduate"
-    };
+    private String[] Education={"Undergraduate","Postgraduate"};
+    JComboBox lev = new JComboBox(Education);
+    JButton reset= new JButton("RESET");
+
+
+
     JRadioButton SAT = new JRadioButton("SAT");
     JRadioButton GRE = new JRadioButton("GRE");
     ButtonGroup Btn_group = new ButtonGroup();
@@ -20,10 +32,12 @@ public class Homepage extends JFrame    {
     JTextField Score= new JTextField();
     JLabel Score_Text =new JLabel("Test Score: ");
 
+    JButton submit = new JButton("Submit");
+
     JTextField GPA= new JTextField();
     JLabel GPA_Text =new JLabel("GPA: ");
 
-    JTextArea Scholar_list= new JTextArea(10,10);
+    JTable Scholar_list= new JTable();
 
     JScrollPane scroll= new JScrollPane(Scholar_list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -35,12 +49,13 @@ public class Homepage extends JFrame    {
 
 
 
-
     public Homepage() throws Exception {
         setTitle("Scholarship Blog");
-        setSize(900,600);
+        setSize(1100,600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        setResizable(false);
 
         Container form  = getContentPane();
         form.setLayout(new GroupLayout(form));
@@ -64,7 +79,7 @@ public class Homepage extends JFrame    {
         JLabel Level= new JLabel("Educational level :");
         Level.setFont(Font.getFont("Arial"));
         Level.setBounds(8,230,200,40);
-        JComboBox lev = new JComboBox(Education);
+
         lev.setBounds(120,240,200,30);
         lev.setFont(Font.getFont("Arial"));
         JLabel Exam_type = new JLabel("Examination Type");
@@ -81,9 +96,16 @@ public class Homepage extends JFrame    {
 
         GPA.setBounds(120,360,200,30);
         GPA.setFont(Font.getFont("Arial"));
-        scroll.setBounds(500,18,350,135);
+        scroll.setBounds(500,18,540,200);
         scroll.setFont(Font.getFont("Arial"));
         scroll.setBorder(new LineBorder(Color.gray,2));
+
+        submit.setBounds(8,410,100,30);
+        submit.setFont(Font.getFont("Arial"));
+        submit.addActionListener((this));
+        reset.addActionListener(this);
+
+        reset.setBounds(120,410,100,30);
 
 
 
@@ -102,14 +124,14 @@ public class Homepage extends JFrame    {
 
 
         SAT.setFont(Font.getFont("Arial"));
-        SAT.setSelected(true);
+
         SAT.setBounds(120,280,80,30);
         GRE.setFont(Font.getFont("Arial"));
         GRE.setBounds(230,280,60,30);
         OTHER.setFont(Font.getFont("Arial"));
         OTHER.setBounds(360,280,70,30);
-        this.setVisible(true);
 
+        this.setVisible(true);
 
 
 
@@ -132,6 +154,9 @@ public class Homepage extends JFrame    {
         form.add(Score_Text);
         form.add(GPA);
         form.add(GPA_Text);
+        form.add(submit);
+        form.add(reset);
+
         initialize();
 
 
@@ -152,15 +177,96 @@ public class Homepage extends JFrame    {
        }
        private void initialize ()
        {
-           try
-           {
-               Scholar_list.read(new InputStreamReader(
-                               getClass().getResourceAsStream("/data.txt")),
-                       null);
-           } catch (IOException e) {
-               e.printStackTrace();
-           }
+
        }
+
+ public void RadioButton() {
+
+           for (Enumeration<AbstractButton> buttons = Btn_group.getElements(); buttons.hasMoreElements(); ) {
+               AbstractButton button = buttons.nextElement();
+
+               if (button.isSelected()) {
+
+                   if (lev.getSelectedItem() == "Undergraduate" && button.getText() == "GRE") {
+
+
+                       GRE.setEnabled(false);
+                       SAT.setEnabled(true);
+                       Btn_group.clearSelection();
+                       Score.setText("");
+
+
+                   } else if (lev.getSelectedItem() == "Postgraduate" && button.getText() == "SAT") {
+
+                       GRE.setEnabled(true);
+                       SAT.setEnabled(false);
+                       Btn_group.clearSelection();
+                       Score.setText("");
+
+
+                   }
+               }
+           }
+
+
+       }
+
+       public int ScoreReleased() throws Exception { try {
+
+
+
+
+
+           int x = Integer.parseInt(Score.getText());
+           if(SAT.isSelected()&& (x<400|| x>1600))
+           {
+               JOptionPane.showMessageDialog(null, "Keep score in range 400-1600")
+               ;
+               Score.setText("");
+           }
+           else if(GRE.isSelected() && (x<130||x>170))
+           {
+               JOptionPane.showMessageDialog(null, "Keep score in range 130-170")
+               ;
+               Score.setText("");
+           }
+           else if((!SAT.isSelected()&& !GRE.isSelected() && !OTHER.isSelected()) )
+           {
+               Connection conn = MyConnection.getConnection();
+
+               conn.close();
+               JOptionPane.showMessageDialog(null, "Please select Exam type");
+               Score.setText("");
+
+
+
+           }
+           return x;
+
+       } catch (NumberFormatException nfe) {
+           JOptionPane.showMessageDialog(null,"Test Score Incorrect");
+
+       }
+
+
+           return 0;
+       }
+
+       public void RESET()
+       {
+           Btn_group.clearSelection();
+           Score.setText("");
+           GPA.setText("");
+
+           GRE.setEnabled(true);
+           SAT.setEnabled(true);
+           OTHER.setEnabled(true);
+           Scholar_list.clearSelection();
+
+
+       }
+
+
 
        public static void main(String args[]) throws Exception {
        SwingUtilities.invokeLater(new Runnable() {
@@ -178,9 +284,61 @@ public class Homepage extends JFrame    {
        }
 
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+       if(e.getSource()==submit)
+       {
+           RadioButton();
+           try {
+               ScoreReleased();
+           } catch (Exception exception) {
+               exception.printStackTrace();
+           }
+           try {
+               ScholarSearch();
+           } catch (Exception exception) {
+               System.out.println("Search wrong");
+           }
+       }
+       if(e.getSource()==reset)
+       {
+           RESET();
+       }
+    }
+    public void ScholarSearch() throws Exception {
+        MyConnection.getConnection();
+        String query = "Select * from scholar_list where Score<'" +Integer.parseInt(Score.getText())   + "' OR Score= '" +Integer.parseInt(Score.getText()) + "'";
+
+        Statement stm = MyConnection.getConnection().createStatement();
+        ResultSet rs = stm.executeQuery(query);
+        DefaultTableModel model = new DefaultTableModel(new String[]{"College Name", "Scholarship Name", "SAT ","Amount"}, 0);
+
+
+        while (rs.next())
+        {
+
+            try
+            {
+      String d = rs.getString("College_Name");
+                String e = rs.getString("Scholarship_Name");
+                String f = rs.getString("Score");
+                String g = rs.getString("Aid_Type");
+                model.addRow(new Object[]{d, e, f,g});
+
+                Scholar_list.setDefaultEditor(Object.class, null);
+
+                Scholar_list.setModel(model);
 
 
 
+
+            } catch
+            (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
 }
 
 

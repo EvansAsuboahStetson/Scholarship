@@ -169,9 +169,6 @@ public class logFrame extends JFrame implements ActionListener  {
         String str_email = email_Field.getText();
         String str_pass = password_Field.getText();
         String str_retry = repeat_Field.getText();
-        String str_day = String.valueOf(day.getSelectedItem());
-        String str_month = String.valueOf(month.getSelectedItem());
-        String str_year = String.valueOf(year.getSelectedItem());
 
         if (str_fname.equals("") || str_fname.equals("")) {
             JOptionPane.showMessageDialog(null, "Name  Cannot be Empty");
